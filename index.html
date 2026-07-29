@@ -396,6 +396,36 @@ body{background:linear-gradient(180deg,#dff2ff,#fff7fc)!important}
 .primary,#startBtn,.hero-start,#nextBtn{background:linear-gradient(90deg,#74c9ff,#ff8fc2)!important;color:#fff!important;box-shadow:none!important}
 .card,.setup-card,.stats-card,.today-panel{background:#fff!important;border-color:#d7eaff!important}
 </style>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<meta name="theme-color" content="#f5e9a7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TOEIC750">
+
+
+<style>
+#nextBtn:disabled {
+  opacity:.48 !important;
+  cursor:not-allowed;
+  box-shadow:none !important;
+}
+@media (max-width:600px) {
+  .quiz-actions {
+    position:sticky;
+    bottom:8px;
+    z-index:10;
+    padding:8px;
+    background:rgba(255,255,255,.94);
+    border-radius:12px;
+    box-shadow:0 4px 18px rgba(0,0,0,.10);
+  }
+}
+</style>
+
 </head>
 <body>
 <main>
@@ -434,10 +464,10 @@ body{background:linear-gradient(180deg,#dff2ff,#fff7fc)!important}
         <div>
           <label for="course">学習コース</label>
           <select id="course">
+            <option value="eiken" selected>英検準1級 3400語</option>
             <option value="toeic">TOEIC高頻出 732語</option>
-            <option value="eiken">英検準1級 3400語</option>
-            <option value="common">両方に出る共通単語</option>
-            <option value="all">全単語</option>
+            <option value="common">両方に出る共通単語 170語</option>
+            <option value="all">全単語 3962語</option>
           </select>
         </div>
         <div>
@@ -509,7 +539,7 @@ body{background:linear-gradient(180deg,#dff2ff,#fff7fc)!important}
     <div id="preAnswerActions" class="row">
       <button id="dontKnowBtn" class="secondary">分からない</button>
     </div>
-    <div id="postAnswerActions" class="quiz-actions hidden">
+    <div id="postAnswerActions" class="quiz-actions">
       <button id="nextBtn" class="primary">次へ</button>
       <button id="markWrongBtn">できなかったことにする</button>
     </div>
@@ -520,7 +550,8 @@ body{background:linear-gradient(180deg,#dff2ff,#fff7fc)!important}
     <div id="resultBig" class="result-big"></div>
     <div id="resultText" style="text-align:center"></div>
     <div class="row" style="justify-content:center;margin-top:16px">
-      <button id="retryWrongBtn" class="primary">今回の間違いを復習</button>
+      <button id="nextSetBtn" class="primary">次のDayへ</button>
+      <button id="retryWrongBtn" class="secondary">今回の間違いを復習</button>
       <button id="backBtn" class="secondary">設定に戻る</button>
     </div>
   </section>
@@ -613,8 +644,7 @@ function loadState() {
     return {attempts:0,correct:0,wrong:[],favorites:[]};
   }
 }
-function saveState() { localStorage.setItem(KEY, JSON.stringify(state)); byId("course").addEventListener("change", ()=>{ selectDay(1); renderDayCalendar(); updateRangeNote(); });
-renderStats(); }
+function saveState() { localStorage.setItem(KEY, JSON.stringify(state)); renderStats(); }
 function loadProgress() {
   try {
     const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
@@ -642,6 +672,7 @@ function saveProgress(nextIndex=session?.index||0) {
       direction: byId("direction")?.value || "ko-ja",
       mode: byId("mode")?.value || "choice",
       range: byId("range")?.value || "day",
+      course: byId("course")?.value || "eiken",
       randomize: !!byId("randomize")?.checked
     }
   };
@@ -741,7 +772,7 @@ function renderStats() {
   byId("favCount").textContent=state.favorites.length;
   updateRangeNote();
 }
-function coursePool(course=byId("course")?.value||"toeic") {
+function coursePool(course=byId("course")?.value||"eiken") {
   if(course==="toeic") return WORDS.filter(w=>w.tags?.includes("toeic")).sort((a,b)=>(a.toeicRank||9999)-(b.toeicRank||9999));
   if(course==="eiken") return WORDS.filter(w=>w.tags?.includes("eiken")).sort((a,b)=>a.no-b.no);
   if(course==="common") return WORDS.filter(w=>w.tags?.includes("toeic")&&w.tags?.includes("eiken")).sort((a,b)=>(a.toeicRank||9999)-(b.toeicRank||9999));
@@ -859,8 +890,11 @@ function showQuestion() {
   byId("question").dataset.lang=session.dir==="ko-ja" ? "ko" : "ja";
   byId("feedback").textContent="";
   byId("feedback").className="feedback";
-  byId("postAnswerActions").classList.add("hidden");
+  byId("postAnswerActions").classList.remove("hidden");
   byId("preAnswerActions").classList.remove("hidden");
+  byId("nextBtn").disabled=true;
+  byId("nextBtn").textContent="次へ";
+  byId("markWrongBtn").classList.add("hidden");
   byId("markWrongBtn").classList.remove("marked");
   byId("markWrongBtn").textContent="できなかったことにする";
   byId("markWrongBtn").disabled=false;
@@ -930,8 +964,10 @@ function answer(value, button=null) {
     byId("answerInput").disabled=true; byId("submitBtn").disabled=true;
   }
   byId("nextBtn").textContent=session.index===session.words.length-1 ? "結果を見る" : "次へ";
+  byId("nextBtn").disabled=false;
   byId("preAnswerActions").classList.add("hidden");
   byId("postAnswerActions").classList.remove("hidden");
+  byId("markWrongBtn").classList.remove("hidden");
 
   if(!ok) {
     byId("markWrongBtn").textContent="できなかったに登録済み";
@@ -990,6 +1026,12 @@ function finishQuiz() {
   byId("resultText").textContent=`今回の間違い：${session.wrongNos.length}語`;
   byId("retryWrongBtn").disabled=session.wrongNos.length===0;
 }
+function startNextSet() {
+  const currentDay=Math.max(1, Number(byId("selectedDay")?.value)||1);
+  const nextDay=currentDay>=30 ? 1 : currentDay+1;
+  selectDay(nextDay);
+  startQuiz();
+}
 function backToSetup() {
   byId("quiz").classList.add("hidden");
   byId("result").classList.add("hidden");
@@ -1030,7 +1072,7 @@ function renderDayCalendar() {
   const cal=byId("dayCalendar");
   if(!cal) return;
   cal.innerHTML="";
-  const course=byId("course")?.value||"toeic";
+  const course=byId("course")?.value||"eiken";
   for(let day=1;day<=30;day++) {
     const b=dayBounds(day);
     const btn=document.createElement("button");
@@ -1056,7 +1098,7 @@ function selectDay(day) {
   byId("range").value="day";
   byId("count").value=Math.max(1,b.size);
   byId("selectedDayBig").textContent=`Day ${day}`;
-  const course=byId("course")?.value||"toeic";
+  const course=byId("course")?.value||"eiken";
   if(b.slice.length && (course==="toeic" || course==="common")) {
     const ranks=b.slice.map(w=>w.toeicRank).filter(Boolean);
     byId("selectedDayRange").textContent=ranks.length ? `TOEIC No.${Math.min(...ranks)}〜${Math.max(...ranks)}` : `${b.size}語`;
@@ -1080,7 +1122,15 @@ byId("markWrongBtn").onclick=markCurrentAsWrong;
 byId("stopBtn").onclick=()=>{ if(confirm("テストを終了しますか？")) finishQuiz(); };
 byId("favoriteBtn").onclick=toggleFavorite;
 byId("backBtn").onclick=backToSetup;
+byId("nextSetBtn").onclick=startNextSet;
 byId("retryWrongBtn").onclick=()=>startQuiz(session.wrongNos);
+byId("course").addEventListener("change", ()=>{
+  clearProgress();
+  selectDay(1);
+  renderDayCalendar();
+  updateRangeNote();
+  updateResumeButton();
+});
 byId("range").onchange=()=>{
   byId("startNo").value=1;
   const pool=basePoolForRange();

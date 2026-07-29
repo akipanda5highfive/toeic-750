@@ -1,0 +1,26 @@
+{
+  "name": "TOEIC750・英検準1級 単語チャレンジ",
+  "short_name": "TOEIC750",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fffdf4",
+  "theme_color": "#f5e9a7",
+  "description": "TOEIC高頻出732語と英検準1級3400語を学べる統合単語アプリ",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
