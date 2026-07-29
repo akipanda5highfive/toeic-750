@@ -791,6 +791,77 @@ main::after{
 }
 </style>
 
+
+<style id="watermelon-real-images">
+.app-header::before,
+.today-panel::before,
+#result::before{
+  content:none !important;
+  display:none !important;
+}
+.header-mascot-img{
+  width:66px;
+  height:66px;
+  object-fit:contain;
+  flex:0 0 auto;
+  filter:drop-shadow(0 5px 7px rgba(64,45,28,.12));
+}
+.app-header{
+  padding-left:16px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+}
+.today-panel{
+  grid-template-columns:185px 1fr 250px !important;
+}
+.today-mascot-wrap{
+  display:grid;
+  place-items:center;
+  min-height:170px;
+}
+.today-mascot-img{
+  display:block;
+  width:min(165px,100%);
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 8px rgba(64,45,28,.12));
+}
+.day-badge{
+  margin-left:0 !important;
+}
+.result-mascot-img{
+  display:block;
+  width:128px;
+  height:128px;
+  object-fit:contain;
+  margin:0 auto 6px;
+  filter:drop-shadow(0 7px 8px rgba(64,45,28,.12));
+}
+.sprout{display:none !important}
+
+@media(max-width:760px){
+  .header-mascot-img{
+    width:50px;
+    height:50px;
+  }
+  .app-header{
+    padding:12px !important;
+    gap:10px !important;
+  }
+  .today-panel{
+    grid-template-columns:1fr !important;
+    padding-top:14px !important;
+  }
+  .today-mascot-wrap{
+    min-height:0;
+  }
+  .today-mascot-img{
+    width:150px;
+  }
+}
+</style>
+
 </head>
 <body>
 <main>
@@ -803,7 +874,7 @@ main::after{
 
 
   <header class="app-header cute-header">
-    
+    <img class="header-mascot-img" src="watermelon-mascot.png" alt="笑顔のスイカちゃん">
     <div class="app-title-wrap">
       <h1>TOEIC750・英検準1級<br><span>単語チャレンジ</span></h1>
       <div class="sub"></div>
@@ -813,9 +884,10 @@ main::after{
 
   <section id="setup" class="card setup-card">
     <div class="today-panel">
+      <div class="today-mascot-wrap"><img class="today-mascot-img" src="watermelon-mascot.png" alt="今日の学習を応援するスイカちゃん"></div>
       <div class="day-badge"><span>今日の学習</span><strong id="selectedDayBig">Day 1</strong><small id="selectedDayRange">TOEIC No.1〜25</small></div>
       <div class="today-copy">
-        <div class="today-title"><span class="sprout">😊</span><b id="todayWordCount">25語</b></div>
+        <div class="today-title"><b id="todayWordCount">25語</b></div>
         <p></p>
       </div>
       <button id="startBtn" class="primary hero-start">▶ 学習を始める</button>
@@ -911,6 +983,7 @@ main::after{
   </section>
 
   <section id="result" class="card hidden">
+    <img class="result-mascot-img" src="watermelon-mascot.png" alt="おつかれさまのスイカちゃん">
     <h2 style="margin-top:0">結果</h2>
     <div id="resultBig" class="result-big"></div>
     <div id="resultText" style="text-align:center"></div>

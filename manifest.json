@@ -3,8 +3,8 @@
   "short_name": "TOEIC750",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#fffdf4",
-  "theme_color": "#f5e9a7",
+  "background_color": "#fffdf6",
+  "theme_color": "#4f8b43",
   "description": "TOEIC高頻出732語と英検準1級3400語を学べる統合単語アプリ",
   "icons": [
     {
